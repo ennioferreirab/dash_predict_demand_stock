@@ -5,16 +5,17 @@ import scipy
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-def make_cards(sales, item_id, selected_model, max_price, max_profit):
-    max_price, max_profit, est_demand, security_stock, minimum_stock, max_stock = \
-        calcule_stock_stats(sales, item_id, selected_model, max_price, max_profit)
-    def design_cards(x,icon_class,txt):
+def design_cards(x,icon_class,txt):
         return dbc.Card([
             html.I(className= icon_class),
             dbc.CardBody(
                 html.P(f'{txt}: {x}', className='card-text')
                 ,style={'background-color': '#F9F9F9'})
         ],style={'box-shadow': '3px 2px 7px lightgrey'})
+
+def make_cards(sales, item_id, selected_model, max_price, max_profit):
+    max_price, max_profit, est_demand, security_stock, minimum_stock, max_stock = \
+        calcule_stock_stats(sales, item_id, selected_model, max_price, max_profit)
     max_price_card = design_cards(max_price,"far fa-money-bill-alt fa-9x","Preço ótimo"),
     max_profit_card = design_cards(int(round(np.float32(max_profit))),"fas fa-dollar-sign fa-9x",'Lucro estimado'),
     est_demand_card = design_cards(int(unlist(np.round(est_demand))[0]),"/assets/placeholder286x180.png","Demanda estimada"),
