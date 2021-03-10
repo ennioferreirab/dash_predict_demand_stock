@@ -14,8 +14,7 @@ import pandas as pd
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP,'https://use.fontawesome.com/releases/v5.8.1/css/all.css'])
 
-sales_raw = pd.read_csv('raw_data/sales_train.csv')
-sales = sales_raw.copy()
+sales = pd.read_csv('raw_data/sales_train.csv')
 sales = sales[sales['item_cnt_day'] != -1]
 sales['date'] = pd.to_datetime(sales['date'], dayfirst=True)
 sales['year'] = sales['date'].dt.year
@@ -25,13 +24,6 @@ sales['date_year_month'] = sales['date'].dt.strftime('%Y-%m')
 # select
 select_shop_id = 31  # top observations
 sales = sales[sales['shop_id'] == select_shop_id]
-
-date_options = [{'label': 'Todos', 'value': '*'}]
-min_date = sales.date.min()
-max_date = sales.date.max()
-
-app.layout = html.Div([html.H1('Leu')])
-        
 
 if __name__ == '__main__':
     app.run_server(debug=True)
