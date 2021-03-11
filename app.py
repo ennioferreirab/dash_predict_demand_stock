@@ -17,67 +17,10 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP,'https://us
 
 conn = sql.connect('database/dbsqlite.db')
 sales = pd.read_sql('SELECT * FROM sales', conn)
-
+print(sales)
 date_options = [{'label': 'Todos', 'value': '*'}]
 min_date = sales.date.min()
 max_date = sales.date.max()
-
-NAVBAR = html.Nav(
-    dbc.Row([
-        dbc.Col([],md=4),
-        dbc.Col([html.H4('Otimização de Estoque | Preço | Demanda')],
-            md=5, style={'margin-top': '1rem'}),
-        dbc.Col([
-            html.H6('Apenas demonstração', style={'color': '#80808063', 'text-align': 'right'}),
-            html.A(
-                html.Img(src='assets/linkedin.png',style={'width':'25px', 'position': 'absolute','right': '15px'}),
-                href="https://www.linkedin.com/in/ennio-bastos-41a33264/")
-        ],md=3)
-    ])
-)
-
-LEFT_COLUMN = dbc.Jumbotron(
-    [
-        html.Div([
-            html.P('Selecione uma data'),
-            dcc.DatePickerRange(
-                id='my-date-picker-range',
-                min_date_allowed=min_date,
-                max_date_allowed=max_date,
-                display_format='DD/MM/YYYY',
-                initial_visible_month=min_date,
-                start_date=min_date,
-                end_date=max_date
-            )],style={'margin-bottom': '1rem'}),
-        html.Div([html.P('Selecione o modelo de estimação'),
-            dcc.Dropdown(
-                id='model-dropdown',
-                options=[
-                    {'label': 'Árvore de decisão', 'value': 'decision'},
-                    {'label': 'Regressão linear', 'value': 'ols'},
-                    {'label': 'Regressão KNN', 'value': 'knn'},
-                    ],
-                value='decision')],style={'margin-bottom': '1rem', 'margin-top': '1rem'}),
-        html.Div([html.P('Filtrar quantidade minima vendida'),
-            dcc.Slider(
-                id='available-id',
-                min=50,
-                max=150,
-                step=50,
-                value=150,
-                marks={str(i): str(i) for i in range(50, 200, 50)})],style={'margin-bottom': '1rem', 'margin-top': '1rem'}),
-        html.Div([html.P('Selecione o item ID desejado'),
-            dcc.Dropdown(
-                id='available-dropdown',
-                value=4181)],style={'margin-top': '1rem'}),
-    ]
-, style={'padding': '1rem 1rem 4rem 1rem','box-shadow': '3px 2px 7px lightgrey'})
-
-RIGHT_COLUMN = [
-    dbc.Row([
-        dbc.Col(dcc.Graph(id='plot_demand',style={'padding':'0 0 0 0', 'box-shadow': '3px 2px 7px lightgrey'}),md=6),
-        dbc.Col(dcc.Graph(id='plot_profit',style={'box-shadow': '3px 2px 7px lightgrey'}),md=6,style={'padding-right': '0'})])
-]
 
 app.layout = html.Div([html.H1('Teste')])
 
