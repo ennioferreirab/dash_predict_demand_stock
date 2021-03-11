@@ -13,7 +13,7 @@ import sqlite3 as sql
 
 #external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP,'https://use.fontawesome.com/releases/v5.8.1/css/all.css'])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])#,'https://use.fontawesome.com/releases/v5.8.1/css/all.css'])
 
 conn = sql.connect('database/dbsqlite.db')
 sales = pd.read_sql('SELECT * FROM sales', conn)
@@ -23,6 +23,7 @@ min_date = sales.date.min()
 max_date = sales.date.max()
 
 app.layout = html.Div([html.H1('Teste')])
+server = app.server
 
 if __name__ == '__main__':
     app.run_server(debug=True)
