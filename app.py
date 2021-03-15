@@ -49,7 +49,7 @@ LEFT_COLUMN = dbc.Jumbotron(
                 start_date=min_date,
                 end_date=max_date
             )],style={'margin-bottom': '1rem'}),
-        html.Div([html.P('Selecione o modelo de estimação'),
+        html.Div([html.P('Selecione o modelo de estimação de demanda'),
             dcc.Dropdown(
                 id='model-dropdown',
                 options=[

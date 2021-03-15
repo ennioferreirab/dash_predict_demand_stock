@@ -6,7 +6,18 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 
-def design_cards(x, txt):
+def design_cards_reais(x, txt):
+    return dbc.Card([
+        html.P(txt, style={'background-color': '#E9ECEF', 'height': '3rem',
+                           'margin-bottom': '0px',
+                           'display': 'flex',
+                           'align-items': 'center',
+                           'justify-content': 'center', }),
+        dbc.CardBody(
+            html.P(f'R$ {x}', className='card-text'))
+    ], style={'box-shadow': '3px 2px 7px lightgrey'})
+
+def design_cards_number(x, txt):
     return dbc.Card([
         html.P(txt, style={'background-color': '#E9ECEF', 'height': '3rem',
                            'margin-bottom': '0px',
@@ -22,16 +33,16 @@ def make_cards(sales, item_id, selected_model, max_price, max_profit):
     max_price, max_profit, est_demand, security_stock, minimum_stock, max_stock = \
         calcule_stock_stats(sales, item_id, selected_model,
                             max_price, max_profit)
-    max_price_card = design_cards(max_price, "Preço ótimo"),
-    max_profit_card = design_cards(
+    max_price_card = design_cards_reais(max_price, "Preço ótimo"),
+    max_profit_card = design_cards_reais(
         int(round(np.float32(max_profit))), 'Lucro estimado'),
-    est_demand_card = design_cards(
+    est_demand_card = design_cards_number(
         int(unlist(np.round(est_demand))[0]), "Demanda estimada"),
-    security_stock_card = design_cards(
+    security_stock_card = design_cards_number(
         int(unlist(np.round(security_stock))[0]), "Estoq. de segurança"),
-    minimum_stock_card = design_cards(
+    minimum_stock_card = design_cards_number(
         int(unlist(np.round(minimum_stock))[0]), "Estoque mínimo"),
-    max_stock_card = design_cards(
+    max_stock_card = design_cards_number(
         int(unlist(np.round(max_stock))[0]), "Estoque máximo")
 
     return dbc.Row(
