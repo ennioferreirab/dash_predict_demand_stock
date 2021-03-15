@@ -1,3 +1,4 @@
+import pandas as pd
 from utils.models import select_model
 from utils.functions import set_price_range, create_cost, profit
 import plotly.graph_objects as go
@@ -13,18 +14,14 @@ layout = dict(
     legend=dict(font=dict(size=10), orientation="h",x=0.5,y=-0.2 ),
 )
 
-def plot_demand(sales, item_id, selected_model):
-    #demand_layout = copy.deepcopy(layout)
-    sales_agg = sales[sales['item_id'] == item_id]
-    sales_agg = sales_agg.groupby('date_year_month').agg(
-        {'item_cnt_day': ['sum'], 'item_price': ['mean']})
-    sales_agg.columns = ["_".join(x) for x in sales_agg.columns]
+def plot_demand(json_sales_df, selected_model):
+    sales_df = pd.read_json(json_sales_df, orient='split')
 
     estimate_demand_obj = select_model(
-        sales_agg, x='item_price_mean', y='item_cnt_day_sum', model= selected_model)
+        sales_df, x='item_price_mean', y='item_cnt_day_sum', model= selected_model)
     fig = go.Figure([
-        go.Scatter(x=sales_agg['item_price_mean'],
-                   y=sales_agg['item_cnt_day_sum'], mode='markers', name='Dados observados'),
+        go.Scatter(x=sales_df['item_price_mean'],
+                   y=sales_df['item_cnt_day_sum'], mode='markers', name='Dados observados'),
         go.Scatter(x=estimate_demand_obj['x_range'],
                    y=estimate_demand_obj['y_range'], name='Demanda estimada'),
     ])
@@ -38,16 +35,13 @@ def plot_demand(sales, item_id, selected_model):
 
     return fig
 
-def plot_profit_curve(sales, item_id, selected_model):
-    sales_agg = sales[sales['item_id'] == item_id]
-    sales_agg = sales_agg.groupby('date_year_month').agg(
-        {'item_cnt_day': ['sum'], 'item_price': ['mean']})
-    sales_agg.columns = ["_".join(x) for x in sales_agg.columns]
+def plot_profit_curve(json_sales_df, selected_model):
+    sales_df = pd.read_json(json_sales_df, orient='split')
 
     estimate_demand_obj = select_model(
-        sales_agg, x='item_price_mean', y='item_cnt_day_sum', model= selected_model)
-    mean_price = sales_agg['item_price_mean'].mean()
-    Price_range = set_price_range(sales_agg['item_price_mean'])
+        sales_df, x='item_price_mean', y='item_cnt_day_sum', model= selected_model)
+    mean_price = sales_df['item_price_mean'].mean()
+    Price_range = set_price_range(sales_df['item_price_mean'])
     cost = create_cost(mean_price, cost_rate=0.6)
 
     Profit = []

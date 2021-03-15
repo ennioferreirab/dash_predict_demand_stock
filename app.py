@@ -76,19 +76,21 @@ LEFT_COLUMN = dbc.Jumbotron(
 RIGHT_COLUMN = [
     dbc.Row([
         dbc.Col(dcc.Graph(id='plot_demand',style={'padding':'0 0 0 0', 'box-shadow': '3px 2px 7px lightgrey'}),md=6),
-        dbc.Col(dcc.Graph(id='plot_profit',style={'box-shadow': '3px 2px 7px lightgrey'}),md=6,style={'padding-right': '0'})])
+        dbc.Col(dcc.Graph(id='plot_profit',style={'box-shadow': '3px 2px 7px lightgrey'}),md=6)])
 ]
 
 app.layout = html.Div([
         dbc.Container(
             [
                 NAVBAR,
-                dbc.Row(id='stock-stats', style={'margin-left': '0px', 'margin-top': '2rem', 'margin-bottom': '2rem'}),
+                dbc.Row(id='stock-stats', style={
+                    'margin-left': '0px', 'margin-top': '2rem', 'margin-bottom': '2rem','font-size': '1.3rem'}),
                 dbc.Row([
                     dbc.Col(LEFT_COLUMN, align="center", md=3, style={"height":"100%"}),
                     dbc.Col(RIGHT_COLUMN, md=9)
                 ])
             ], style={'max-width': '95%'}),
+    html.Div(id='intermediate_df_plot', style={'display': 'none'}), #store value        
     html.Div(id='max_price', style={'display': 'none'}), #store value
     html.Div(id='max_profit', style={'display': 'none'}), #store value
 ])
@@ -105,21 +107,31 @@ def update_output(available_id, start_date, end_date):
         sales_filter_date, min_count=available_id)
     return [{'label': i, 'value': i} for i in available_list]
 
+@app.callback(
+    Output('intermediate_df_plot', 'children'),
+    Input('available-dropdown', 'value'))
+def make_intermediate_df(item_id):
+    sales_agg = sales[sales['item_id'] == item_id]
+    sales_agg = sales_agg.groupby('date_year_month').agg(
+        {'item_cnt_day': ['sum'], 'item_price': ['mean']})
+    sales_agg.columns = ["_".join(x) for x in sales_agg.columns]
+    return sales_agg.to_json(date_format='iso', orient='split')
+
 
 @ app.callback(
     Output('plot_demand', 'figure'),
-    Input('available-dropdown', 'value'),
+    Input('intermediate_df_plot', 'children'),
     Input('model-dropdown', 'value'))
-def make_plot_demand(item_id, selected_model):
-    return plot_demand(sales, item_id, selected_model)
+def make_plot_demand(json_sales_df, selected_model):
+    return plot_demand(json_sales_df, selected_model)
 
 
 @ app.callback(
     Output('plot_profit', 'figure'), Output('max_price', 'children'), Output('max_profit', 'children'),
-    Input('available-dropdown', 'value'),
+    Input('intermediate_df_plot', 'children'),
     Input('model-dropdown', 'value'))
-def make_plot_profit_curve(item_id, selected_model):
-    return plot_profit_curve(sales, item_id, selected_model)
+def make_plot_profit_curve(json_sales_df, selected_model):
+    return plot_profit_curve(json_sales_df,  selected_model)
 
 
 @ app.callback(
