@@ -2,6 +2,7 @@ import pandas as pd
 from utils.models import select_model
 from utils.functions import set_price_range, create_cost, profit
 import plotly.graph_objects as go
+import plotly.express as px
 import numpy as np
 
 layout = dict(
@@ -66,3 +67,22 @@ def plot_profit_curve(json_sales_df, selected_model):
         yaxis_title="Lucro estimado",
     )
     return fig, str(max_price), str(np.max(max_profit))
+
+def plot_time_sell(json_sales_df):
+    sales_df = pd.read_json(json_sales_df, orient='split')
+    sales_df['sold_month'] = sales_df.index
+    min_plot_date = sales_df.sold_month.min()
+    max_plot_date = sales_df.sold_month.max()
+    sales_df['sold_month'] = sales_df['sold_month'].dt.strftime('%Y-%m')
+    full_period = pd.period_range(start=min_plot_date, end=max_plot_date, freq='M').to_series().astype(str)
+    full_period = pd.DataFrame(full_period, columns=['full_period'])
+    df_plot = full_period.merge(sales_df, left_on='full_period', right_on='sold_month',how='left')
+    
+    fig = px.area(df_plot, x="full_period", y="item_cnt_day_sum")
+    fig.update_layout(layout)
+    fig.update_layout(
+            title="Vendas durante o período analisado, agregado pelo mês",
+            xaxis_title="Data",
+            yaxis_title="Quantidade de vendas",
+        )
+    return fig

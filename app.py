@@ -1,4 +1,5 @@
 
+from utils.plots import plot_time_sell
 from dash_html_components.Div import Div
 from utils.functions import remove_low_sales
 from utils.plots import plot_demand, plot_profit_curve
@@ -71,12 +72,13 @@ LEFT_COLUMN = dbc.Jumbotron(
                 id='available-dropdown',
                 value=4181)],style={'margin-top': '1rem'}),
     ]
-, style={'padding': '1rem 1rem 4rem 1rem','box-shadow': '3px 2px 7px lightgrey'})
-
+, style={'box-shadow': '3px 2px 7px lightgrey'})
+#'padding': '1rem 1rem 4rem 1rem'
 RIGHT_COLUMN = [
     dbc.Row([
-        dbc.Col(dcc.Graph(id='plot_demand',style={'padding':'0 0 0 0', 'box-shadow': '3px 2px 7px lightgrey'}),md=6),
-        dbc.Col(dcc.Graph(id='plot_profit',style={'box-shadow': '3px 2px 7px lightgrey'}),md=6)])
+        dbc.Col(dcc.Graph(id='plot_demand',style={'height':'100%','padding':'0 0 0 0', 'box-shadow': '3px 2px 7px lightgrey'}),md=6),
+        dbc.Col(dcc.Graph(id='plot_profit',style={'height':'100%','box-shadow': '3px 2px 7px lightgrey'}),md=6)],
+        style={'height': '100%'})
 ]
 
 app.layout = html.Div([
@@ -84,11 +86,14 @@ app.layout = html.Div([
             [
                 NAVBAR,
                 dbc.Row(id='stock-stats', style={
-                    'margin-left': '0px', 'margin-top': '2rem', 'margin-bottom': '2rem','font-size': '1.3rem'}),
+                    'margin-left': '0px','margin-right': '0px', 'margin-top': '2rem', 'margin-bottom': '2rem','font-size': '1.3rem'}),
                 dbc.Row([
-                    dbc.Col(LEFT_COLUMN, align="center", md=3, style={"height":"100%"}),
-                    dbc.Col(RIGHT_COLUMN, md=9)
-                ])
+                    dbc.Col(LEFT_COLUMN, align="center", md=3, style={'padding-left': '0px'}),
+                    dbc.Col(RIGHT_COLUMN, md=9,style={'padding-right': '0px','margin-bottom': '32px'})
+                ],style={'margin-left': '0px'}),
+                dbc.Row([dcc.Graph(id='plot_time',
+                    style={'width':'100%','padding':'0 0 0 0', 'box-shadow': '3px 2px 7px lightgrey'})
+                ],style={'margin-left': '3px','margin-right': '‒10px'})
             ], style={'max-width': '95%'}),
     html.Div(id='intermediate_df_plot', style={'display': 'none'}), #store value        
     html.Div(id='max_price', style={'display': 'none'}), #store value
@@ -109,9 +114,12 @@ def update_output(available_id, start_date, end_date):
 
 @app.callback(
     Output('intermediate_df_plot', 'children'),
-    Input('available-dropdown', 'value'))
-def make_intermediate_df(item_id):
+    Input('available-dropdown', 'value'),
+    Input('my-date-picker-range', 'start_date'),
+    Input('my-date-picker-range', 'end_date'))
+def make_intermediate_df(item_id,start_date,end_date):
     sales_agg = sales[sales['item_id'] == item_id]
+    sales_agg = sales_agg[((sales_agg['date'] > start_date) &  (sales_agg['date'] < end_date))]
     sales_agg = sales_agg.groupby('date_year_month').agg(
         {'item_cnt_day': ['sum'], 'item_price': ['mean']})
     sales_agg.columns = ["_".join(x) for x in sales_agg.columns]
@@ -132,6 +140,12 @@ def make_plot_demand(json_sales_df, selected_model):
     Input('model-dropdown', 'value'))
 def make_plot_profit_curve(json_sales_df, selected_model):
     return plot_profit_curve(json_sales_df,  selected_model)
+
+@ app.callback(
+    Output('plot_time', 'figure'),
+    Input('intermediate_df_plot', 'children'))
+def make_plot_time_sell(json_sales_df):
+    return plot_time_sell(json_sales_df)
 
 
 @ app.callback(

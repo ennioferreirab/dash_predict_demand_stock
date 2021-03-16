@@ -46,12 +46,13 @@ def make_cards(sales, item_id, selected_model, max_price, max_profit):
         int(unlist(np.round(max_stock))[0]), "Estoque máximo")
 
     return dbc.Row(
-        [dbc.Col(max_price_card, md=2),
+        [dbc.Col(max_price_card, md=2, style={'padding-left': '0px'}),
          dbc.Col(max_profit_card, md=2),
          dbc.Col(est_demand_card, md=2),
          dbc.Col(security_stock_card, md=2),
          dbc.Col(minimum_stock_card, md=2),
-         dbc.Col(max_stock_card, md=2, style={'padding-right': '0px'})], style={'text-align': 'center', 'width': '100%'}, )
+         dbc.Col(max_stock_card, md=2, style={'padding-right': '0px'})], 
+            style={'text-align': 'center', 'width': '100%','margin-left': '10px','margin-right': '0px'})
 
 
 def calcule_stock_stats(sales, item_id, selected_model, max_price, max_profit):
